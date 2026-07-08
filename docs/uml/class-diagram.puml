@@ -1,0 +1,71 @@
+@startuml
+
+title Klassendiagram Boekenbeheersysteem
+
+hide methods
+hide circle
+skinparam classAttributeIconSize 0
+
+class Author {
+    id : Long
+    firstName : String
+    lastName : String
+}
+
+class Book {
+    id : Long
+    isbn : String
+    title : String
+    publisher : String
+    publicationYear : Integer
+    category : String
+    description : String
+    coverImagePath : String
+}
+
+Author "1" -- "*" Book : schrijft >
+
+class BookCopy {
+    id : Long
+    barcode : String
+    status : BookStatus
+}
+
+Book "1" -- "*" BookCopy : heeft exemplaren >
+
+enum BookStatus {
+    AVAILABLE
+    LOANED
+}
+
+BookCopy --> BookStatus : status
+
+class Customer {
+  id : Long
+  keycloakId : String
+  firstName : String
+  lastName : String
+  email : String
+  phoneNumber : String
+}
+
+class LibraryCard {
+  id : Long
+  cardNumber : String
+  issueDate : Date
+  expirationDate : Date
+  active : Boolean
+}
+
+class Loan {
+  id : Long
+  loanDate : Date
+  dueDate : Date
+  returnDate : Date
+}
+
+Customer "1" -- "1" LibraryCard : bezit >
+Customer "1" -- "*" Loan : leent >
+BookCopy "1" -- "*" Loan : wordt uitgeleend in >
+
+@enduml
