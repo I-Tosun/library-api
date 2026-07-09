@@ -1,0 +1,65 @@
+@startuml
+
+title Sequentiediagram - Boek uitlenen
+
+actor Medewerker
+participant "LoanController" as Controller
+participant "LoanService" as Service
+participant "BookCopyRepository" as BookCopyRepo
+participant "CustomerRepository" as CustomerRepo
+participant "LoanRepository" as LoanRepo
+participant "LoanMapper" as Mapper
+
+Medewerker -> Controller : POST /api/loans\n(LoanRequest)
+activate Controller
+
+Controller -> Service : createLoan(LoanRequest request)
+activate Service
+
+Service -> BookCopyRepo : findById(bookCopyId)
+activate BookCopyRepo
+BookCopyRepo --> Service : Optional<BookCopy>
+deactivate BookCopyRepo
+
+alt BookCopy niet gevonden
+    Service --> Controller : throw BookCopyNotFoundException
+    Controller --> Medewerker : 404 Not Found
+else BookCopy status != AVAILABLE
+    Service --> Controller : throw BookCopyNotAvailableException
+    Controller --> Medewerker : 409 Conflict
+else BookCopy beschikbaar
+    Service -> CustomerRepo : findById(customerId)
+    activate CustomerRepo
+    CustomerRepo --> Service : Optional<Customer>
+    deactivate CustomerRepo
+
+    alt Customer niet gevonden
+        Service --> Controller : throw CustomerNotFoundException
+        Controller --> Medewerker : 404 Not Found
+    else Customer gevonden
+        Service -> Service : bookCopy.setStatus(LOANED)
+        Service -> BookCopyRepo : save(bookCopy)
+        activate BookCopyRepo
+        BookCopyRepo --> Service : BookCopy
+        deactivate BookCopyRepo
+
+        Service -> Service : new Loan(customer, bookCopy, loanDate, dueDate)
+        Service -> LoanRepo : save(loan)
+        activate LoanRepo
+        LoanRepo --> Service : Loan
+        deactivate LoanRepo
+
+        Service -> Mapper : toResponse(loan)
+        activate Mapper
+        Mapper --> Service : LoanResponse
+        deactivate Mapper
+
+        Service --> Controller : LoanResponse
+        Controller --> Medewerker : 201 Created\n(LoanResponse)
+    end
+end
+
+deactivate Service
+deactivate Controller
+
+@enduml

@@ -3,7 +3,7 @@ spring.application.name=library-api
 # Database
 spring.datasource.url=jdbc:postgresql://localhost:5433/librarydb
 spring.datasource.username=postgres
-spring.datasource.password=1985
+spring.datasource.password=your_password_here
 
 # JPA / Hibernate
 spring.jpa.hibernate.ddl-auto=update

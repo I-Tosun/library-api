@@ -1,0 +1,60 @@
+@startuml
+
+title Sequentiediagram - Boek retourneren
+
+actor Medewerker
+participant "LoanController" as Controller
+participant "LoanService" as Service
+participant "LoanRepository" as LoanRepo
+participant "BookCopyRepository" as BookCopyRepo
+participant "LoanMapper" as Mapper
+
+Medewerker -> Controller : PUT /api/loans/{id}/return
+activate Controller
+
+Controller -> Service : returnLoan(loanId)
+activate Service
+
+Service -> LoanRepo : findById(loanId)
+activate LoanRepo
+LoanRepo --> Service : Optional<Loan>
+deactivate LoanRepo
+
+alt Loan niet gevonden
+    Service --> Controller : throw LoanNotFoundException
+    Controller --> Medewerker : 404 Not Found
+else Loan al geretourneerd (returnDate != null)
+    Service --> Controller : throw LoanAlreadyReturnedException
+    Controller --> Medewerker : 409 Conflict
+else Loan actief (returnDate == null)
+    Service -> Service : loan.setReturnDate(vandaag)
+
+    Service -> BookCopyRepo : findById(loan.getBookCopyId())
+    activate BookCopyRepo
+    BookCopyRepo --> Service : BookCopy
+    deactivate BookCopyRepo
+
+    Service -> Service : bookCopy.setStatus(AVAILABLE)
+    Service -> BookCopyRepo : save(bookCopy)
+    activate BookCopyRepo
+    BookCopyRepo --> Service : BookCopy
+    deactivate BookCopyRepo
+
+    Service -> LoanRepo : save(loan)
+    activate LoanRepo
+    LoanRepo --> Service : Loan
+    deactivate LoanRepo
+
+    Service -> Mapper : toResponse(loan)
+    activate Mapper
+    Mapper --> Service : LoanResponse
+    deactivate Mapper
+
+    Service --> Controller : LoanResponse
+    Controller --> Medewerker : 200 OK\n(LoanResponse)
+end
+
+deactivate Service
+deactivate Controller
+
+@enduml
