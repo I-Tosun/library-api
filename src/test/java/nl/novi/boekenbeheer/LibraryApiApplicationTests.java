@@ -1,4 +1,4 @@
-package nl.isso.libraryapi;
+package nl.novi.boekenbeheer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
