@@ -20,7 +20,7 @@ public class Author {
     private Long id;
 
     @Column(nullable = false)
-    private String firstname;
+    private String firstName;
 
     @Column(nullable = false)
     private String lastName;
