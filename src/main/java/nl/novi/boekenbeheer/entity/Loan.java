@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import nl.novi.boekenbeheer.enums.LoanStatus;
-
 import java.time.LocalDate;
 
 @Entity
@@ -27,10 +25,6 @@ public class Loan {
 
     @Column
     private LocalDate returnDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private LoanStatus status = LoanStatus.ACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)

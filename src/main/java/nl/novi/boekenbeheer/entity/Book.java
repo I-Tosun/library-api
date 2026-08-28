@@ -19,20 +19,26 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
-
     @Column(nullable = false, unique = true)
     private String isbn;
 
     @Column(nullable = false)
-    private String genre;
+    private String title;
+
+    @Column(nullable = false)
+    private String publisher;
 
     @Column(nullable = false)
     private int publicationYear;
 
+    @Column(nullable = false)
+    private String category;
+
     @Column
-    private String ebookFilePath;
+    private String description;
+
+    @Column
+    private String coverImagePath;
 
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)

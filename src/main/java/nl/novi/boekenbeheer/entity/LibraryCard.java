@@ -25,7 +25,10 @@ public class LibraryCard {
     private LocalDate issueDate;
 
     @Column(nullable = false)
-    private LocalDate expiryDate;
+    private LocalDate expirationDate;
+
+    @Column(nullable = false)
+    private boolean active = true;
 
     @OneToOne
     @JoinColumn(name = "customer_id", nullable = false, unique = true)
