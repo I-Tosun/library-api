@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
-    Optional<BookCopy> findByCopyCode(String copyCode);
+    Optional<BookCopy> findByBarcode(String copyCode);
     List<BookCopy> findByBookId(Long bookId);
     List<BookCopy> findByBookIdAndStatus(Long bookId, BookCopyStatus status);
 }

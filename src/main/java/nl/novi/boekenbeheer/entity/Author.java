@@ -20,13 +20,10 @@ public class Author {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String firstname;
 
     @Column(nullable = false)
-    private String nationality;
-
-    @Column(nullable = false)
-    private int birthYear;
+    private String lastName;
 
     @OneToMany(mappedBy = "author", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Book> books = new ArrayList<>();
