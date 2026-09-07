@@ -4,9 +4,13 @@ import jakarta.validation.Valid;
 import nl.novi.boekenbeheer.dto.request.BookRequest;
 import nl.novi.boekenbeheer.dto.response.BookResponse;
 import nl.novi.boekenbeheer.service.BookService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,5 +55,24 @@ public class BookController {
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ← NIEUW: cover uploaden
+    @PostMapping("/{id}/cover")
+    public ResponseEntity<BookResponse> uploadCover(@PathVariable Long id,
+                                                    @RequestParam("bestand") MultipartFile bestand) {
+        BookResponse response = bookService.uploadCover(id, bestand);
+        return ResponseEntity.ok(response);
+    }
+
+    // ← NIEUW: cover downloaden
+    @GetMapping("/{id}/cover")
+    public ResponseEntity<Resource> downloadCover(@PathVariable Long id) {
+        Resource resource = bookService.downloadCover(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }
