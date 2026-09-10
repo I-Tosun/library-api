@@ -1,87 +1,113 @@
-```markdown
-# Boekenbeheer Systeem
+# BoekenbeheerSysteem
 
-Een REST API voor het beheren van boeken, klanten en uitleningen in een bibliotheeksysteem.  
+Een REST API voor het beheren van boeken, klanten en uitleningen in een bibliotheeksysteem.
 Gebouwd als eindopdracht voor de Leerlijn Backend 2.0 aan NOVI Hogeschool.
 
-## Beschrijving
+## Inhoudsopgave
 
-De Boekenbeheer API biedt de volgende functionaliteit:
+1. [Inleiding](#inleiding)
+2. [Functionaliteiten](#functionaliteiten)
+3. [Technologieën en frameworks](#technologieën-en-frameworks)
+4. [Vereisten](#vereisten)
+5. [Installatie](#installatie)
+6. [Applicatie starten](#applicatie-starten)
+7. [Tests uitvoeren](#tests-uitvoeren)
+8. [API-documentatie](#api-documentatie)
+9. [Postman](#postman)
+10. [Testgebruikers](#testgebruikers)
+11. [Rollen en rechten](#rollen-en-rechten)
+12. [Projectstructuur](#projectstructuur)
+13. [GitHub](#github)
 
-- **Auteurs beheren** — toevoegen, opvragen, bijwerken en verwijderen
-- **Boeken beheren** — toevoegen, opvragen per categorie, bijwerken en verwijderen
-- **Boekexemplaren beheren** — fysieke exemplaren koppelen aan boeken
-- **Klanten beheren** — klantregistratie en profielbeheer
-- **Bibliotheekpassen beheren** — uitgeven en beheren van bibliotheekpassen
-- **Uitleningen registreren** — boeken uitlenen en retourneren
-- **Boekomslagen uploaden en downloaden** — bestandsbeheer per boek
-- **Authenticatie en autorisatie** — via Keycloak OAuth2 met de rollen `BEHEERDER` en `KLANT`
+---
 
-## Technologieën
+## Inleiding
 
-| Technologie | Versie |
-|---|---|
-| Java | 21 (Temurin) |
-| Spring Boot | 3.4.3 |
-| PostgreSQL | 17 |
-| Keycloak | 26.3 |
-| Maven | 3.9 |
-| Docker | Docker Desktop |
+Het Boekenbeheer Systeem is een REST API waarmee een bibliotheek haar boekencatalogus, klanten, bibliotheekpassen en uitleningen digitaal beheert. De API biedt beveiligde endpoints via OAuth2 met JWT-authenticatie via Keycloak, waarbij twee rollen zijn gedefinieerd: een beheerder met volledige toegang en een klant met beperkte leesrechten.
+
+De applicatie is ontwikkeld als eindopdracht voor de Leerlijn Backend 2.0 bij NOVI Hogeschool.
+
+---
+
+## Functionaliteiten
+
+- Auteurs beheren — toevoegen, opvragen, bijwerken en verwijderen
+- Boeken beheren — toevoegen, opvragen per categorie, bijwerken en verwijderen
+- Boekexemplaren beheren — fysieke exemplaren koppelen aan boeken
+- Klanten beheren — klantregistratie en profielbeheer
+- Bibliotheekpassen beheren — uitgeven en beheren van bibliotheekpassen
+- Uitleningen registreren — boeken uitlenen en retourneren
+- Boekomslagen uploaden en downloaden — bestandsbeheer per boek
+- Authenticatie en autorisatie — via Keycloak OAuth2 met rollen `BEHEERDER` en `KLANT`
+- Automatische testdata — via `data.sql` bij het starten van de applicatie
+- API-documentatie — via Swagger UI
+
+---
+
+## Technologieën en frameworks
+
+| Technologie | Versie | Doel |
+|---|---|---|
+| Java | 21 (Temurin) | Programmeertaal |
+| Spring Boot | 3.4.3 | Applicatieframework |
+| Spring Security | 6 | Authenticatie en autorisatie |
+| Spring Data JPA | 3 | Databasecommunicatie |
+| Hibernate | 6 | ORM framework |
+| PostgreSQL | 17 | Relationele database |
+| Keycloak | 26.3 | Identity provider (OAuth2/JWT) |
+| Docker | Desktop | Containerisatie |
+| Maven | 3.9 | Build tool |
+| Lombok | 1.18 | Boilerplate code reductie |
+| SpringDoc OpenAPI | 2.8 | Swagger UI generatie |
+| JaCoCo | 0.8.12 | Code coverage rapportage |
+| JUnit 5 | 5 | Testframework |
+| Mockito | 5 | Mock framework voor unit tests |
+
+---
 
 ## Vereisten
 
-Voor het lokaal uitvoeren van het project zijn de volgende onderdelen nodig:
+Zorg dat de volgende software geïnstalleerd is:
 
-- Java 21
+- Java 21 (Temurin aanbevolen)
 - Docker Desktop
 
-Het project bevat een Maven Wrapper (`mvnw`), waardoor Maven niet afzonderlijk hoeft te worden geïnstalleerd.
+Controleer de installatie:
 
-## Projectstructuur
-
-```text
-library-api/
-├── src/
-│   ├── main/
-│   │   ├── java/nl/novi/boekenbeheer/
-│   │   │   ├── config/          # OpenAPI configuratie
-│   │   │   ├── controller/      # REST controllers
-│   │   │   ├── dto/
-│   │   │   │   ├── request/     # Request DTO's
-│   │   │   │   └── response/    # Response DTO's
-│   │   │   ├── entity/          # JPA entiteiten
-│   │   │   ├── enums/           # Enumeraties
-│   │   │   ├── exception/       # Exception handling
-│   │   │   ├── mapper/          # Entity ↔ DTO mappers
-│   │   │   ├── repository/      # JPA repositories
-│   │   │   ├── security/        # Spring Security configuratie
-│   │   │   ├── service/         # Business logica
-│   │   │   ├── util/            # Hulpklassen voor bestandsopslag
-│   │   │   ├── validation/      # Validatie
-│   │   │   └── LibraryApiApplication.java
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       ├── application.properties.example
-│   │       └── data.sql         # Testdata
-│   └── test/
-│       ├── java/nl/novi/boekenbeheer/
-│       │   ├── service/         # Unit- en integratietests
-│       │   └── LibraryApiApplicationTests.java
-│       └── resources/
-│           └── application.properties
-├── pom.xml
-└── README.md
+```bash
+java -version
+docker --version
 ```
+
+---
 
 ## Installatie
 
-### Stap 1 — Repository klonen
+Volg onderstaande stappen om het project lokaal op te zetten.
+
+### Stap 1
+### Optie A — Repository klonen
 
 ```bash
-git clone https://github.com/I-Tosun/library-api.git
+Optie A —  git clone https://github.com/I-Tosun/library-api.git
 cd library-api
 ```
-
+### Optie B — ZIP-bestand
+```bash
+Optie B — Project ontvangen als ZIP-bestand
+1. Download het aangeleverde ZIP-bestand.
+2. Pak het ZIP-bestand uit op de gewenste locatie.
+3. Open de uitgepakte map library-api in IntelliJ IDEA.
+4. Kies Open en selecteer de map library-api.
+5. IntelliJ IDEA herkent het project als Maven-project via pom.xml.
+6. Wacht totdat Maven alle dependencies heeft ingeladen.
+7. Controleer of de projectstructuur overeenkomt met de structuur in deze README.
+8. Controleer vervolgens de configuratie in:
+```
+```bash
+src/main/resources/application.properties
+Het project is daarna klaar om de benodigde PostgreSQL- en Keycloak-containers op te zetten.
+```
 ### Stap 2 — PostgreSQL starten via Docker
 
 ```bash
@@ -108,16 +134,32 @@ docker run -d \
 
 ### Stap 4 — Keycloak realm importeren
 
-1. Ga naar http://localhost:8180
-2. Log in met gebruikersnaam `admin` en wachtwoord `admin`.
-3. Klik linksboven op het dropdownmenu naast **Keycloak**.
-4. Kies **Create realm**.
-5. Klik op **Browse** en selecteer het meegeleverde Keycloak-exportbestand `boekenbeheer-realm.json`.
-6. Klik op **Create**.
+1. Ga naar `http://localhost:8180`
+2. Log in met gebruikersnaam `admin` en wachtwoord `admin`
+3. Klik linksboven op het dropdownmenu naast **Keycloak**
+4. Kies **Create realm**
+5. Klik op **Browse** en selecteer het meegeleverde exportbestand `realm-export.json`
+6. Klik op **Create**
 
-De realm `boekenbeheer` wordt aangemaakt met de geconfigureerde rollen, client en testgebruikers.
+De realm `boekenbeheer` wordt aangemaakt inclusief de geconfigureerde rollen, client en testgebruikers.
 
-### Stap 5 — Applicatie starten
+> **Let op:** De UUID's van de testgebruikers in Keycloak moeten overeenkomen met de waarden in `data.sql`. Bij gebruik van de meegeleverde `realm-export.json` worden de juiste UUID's automatisch aangemaakt.
+
+### Stap 5 — application.properties controleren
+
+Controleer dat `src/main/resources/application.properties` de volgende waarden bevat:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5434/boekenbeheerdb
+spring.datasource.username=postgres
+spring.datasource.password=1234
+spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/boekenbeheer
+spring.security.oauth2.resourceserver.jwt.audiences=account
+```
+
+---
+
+## Applicatie starten
 
 ```bash
 ./mvnw spring-boot:run
@@ -125,15 +167,17 @@ De realm `boekenbeheer` wordt aangemaakt met de geconfigureerde rollen, client e
 
 De applicatie start op poort **8080**.
 
-Bij het starten van de applicatie worden de database en de beschikbare testdata geïnitialiseerd.
+Bij het starten wordt de benodigde databasestructuur bijgewerkt door Hibernate en wordt de beschikbare testdata geïnitialiseerd via `data.sql`.
 
-## Als Docker al eerder is gebruikt
+### Als Docker al eerder is gebruikt
 
 Wanneer de PostgreSQL- en Keycloak-containers al bestaan, kunnen deze opnieuw worden gestart met:
 
 ```bash
 docker start postgres keycloak
 ```
+
+---
 
 ## Tests uitvoeren
 
@@ -145,7 +189,15 @@ Voer alle tests uit met:
 
 De huidige testset bestaat uit:
 
-- 40 tests totaal
+| Testklasse | Aantal tests | Type |
+|---|---|---|
+| `LoanServiceTest` | 13 | Unit test |
+| `BookServiceTest` | 17 | Unit test |
+| `AuthorControllerIntegrationTest` | 4 | Integratietest |
+| `BookControllerIntegrationTest` | 5 | Integratietest |
+| `LibraryApiApplicationTests` | 1 | Context test |
+| **Totaal** | **40** | |
+
 - 0 failures
 - `LoanService`: 100% line coverage
 - `BookService`: 100% line coverage
@@ -158,35 +210,37 @@ Na het uitvoeren van de tests kan het JaCoCo-rapport worden geopend met:
 open target/site/jacoco/index.html
 ```
 
+---
+
 ## API-documentatie
 
 Na het starten van de applicatie is de Swagger UI beschikbaar via:
 
-```text
+```
 http://localhost:8080/swagger-ui.html
 ```
 
-Swagger kan worden gebruikt om de beschikbare endpoints te bekijken en de API rechtstreeks te testen.
+Swagger kan worden gebruikt om de beschikbare endpoints te bekijken, request- en responsevoorbeelden te zien en de API rechtstreeks te testen.
 
-Voor uitgebreide endpointdocumentatie, request- en responsevoorbeelden en de autorisatiematrix wordt verwezen naar de afzonderlijke API-documentatie.
+De OpenAPI specificatie is beschikbaar via:
+
+```
+http://localhost:8080/api-docs
+```
+
+---
 
 ## Postman
 
 De API kan worden getest met de meegeleverde Postman-collectie.
 
-Importeer het bestand:
-
-```text
-Boekenbeheer-API.postman_collection.json
-```
-
-in Postman.
+Importeer het bestand `Boekenbeheer-API.postman_collection.json` in Postman.
 
 ### Postman environment
 
-Gebruik een Postman environment met de volgende variabelen:
+Maak een environment aan met de naam `Boekenbeheer Local` en voeg de volgende variabelen toe:
 
-| Variabele | Waarde |
+| Variable | Waarde |
 |---|---|
 | `baseUrl` | `http://localhost:8080` |
 | `keycloakUrl` | `http://localhost:8180` |
@@ -195,42 +249,84 @@ Gebruik een Postman environment met de volgende variabelen:
 | `password` | `beheerder123` |
 | `token` | Wordt automatisch gevuld via het Get Token request |
 
-De Postman-collectie gebruikt het verkregen JWT-token voor authenticatie van de API-requests.
+De collectie bevat een **Get Token** request die automatisch het JWT-token opslaat in `{{token}}`. Alle overige requests gebruiken dit token voor authenticatie.
+
+---
 
 ## Testgebruikers
-
-De volgende accounts zijn bedoeld voor lokaal testen:
 
 | Gebruikersnaam | Wachtwoord | Rol |
 |---|---|---|
 | `beheerder` | `beheerder123` | `BEHEERDER` |
 | `klant` | `klant123` | `KLANT` |
 
+---
+
 ## Rollen en rechten
 
-| Endpoint | Methode | BEHEERDER | KLANT |
-|---|---|---|---|
+| Endpoint | Methode | BEHEERDER | KLANT    |
+|---|---|--|----------|
 | `/api/authors` | GET | Toegestaan | Toegestaan |
-| `/api/authors` | POST / PUT / DELETE | Toegestaan | Niet toegestaan |
+| `/api/authors` | POST / PUT / DELETE | Toegestaan | Niet toegestaan         |
 | `/api/books` | GET | Toegestaan | Toegestaan |
-| `/api/books` | POST / PUT / DELETE | Toegestaan | Niet toegestaan |
+| `/api/books` | POST / PUT / DELETE | Toegestaan | Niet toegestaan         |
 | `/api/books/{id}/cover` | GET | Toegestaan | Toegestaan |
-| `/api/books/{id}/cover` | POST | Toegestaan | Niet toegestaan |
+| `/api/books/{id}/cover` | POST | Toegestaan | Niet toegestaan         |
 | `/api/book-copies` | GET | Toegestaan | Toegestaan |
-| `/api/book-copies` | POST / DELETE | Toegestaan | Niet toegestaan |
-| `/api/customers` | GET / POST / PUT / DELETE | Toegestaan | Niet toegestaan |
-| `/api/library-cards` | GET / POST / PUT / DELETE | Toegestaan | Niet toegestaan |
+| `/api/book-copies` | POST / DELETE | Toegestaan | Niet toegestaan         |
+| `/api/customers` | GET / POST / PUT / DELETE | Toegestaan | Niet toegestaan         |
+| `/api/library-cards` | GET / POST / PUT / DELETE | Toegestaan | Niet toegestaan         |
 | `/api/loans` | GET | Toegestaan | Toegestaan |
 | `/api/loans` | POST | Toegestaan | Toegestaan |
-| `/api/loans/{id}/return` | PUT | Toegestaan | Niet toegestaan |
+| `/api/loans/{id}/return` | PUT | Toegestaan | Niet toegestaan         |
 | `/api/loans` | DELETE | Toegestaan | Niet toegestaan |
 
-De volledige autorisatie en alle beschikbare endpoints zijn uitgewerkt in de afzonderlijke API-documentatie.
+---
+
+## Projectstructuur
+
+```
+library-api/
+├── src/
+│   ├── main/
+│   │   ├── java/nl/novi/boekenbeheer/
+│   │   │   ├── config/          # OpenAPI configuratie
+│   │   │   ├── controller/      # REST controllers
+│   │   │   ├── dto/
+│   │   │   │   ├── request/     # Request DTO's
+│   │   │   │   └── response/    # Response DTO's
+│   │   │   ├── entity/          # JPA entiteiten
+│   │   │   ├── enums/           # Enumeraties (BookCopyStatus)
+│   │   │   ├── exception/       # Exception handling
+│   │   │   ├── mapper/          # Entity ↔ DTO mappers
+│   │   │   ├── repository/      # JPA repositories
+│   │   │   ├── security/        # Spring Security configuratie
+│   │   │   ├── service/         # Business logica
+│   │   │   ├── util/            # Hulpklassen voor bestandsopslag
+│   │   │   ├── validation/      # Validatie
+│   │   │   └── LibraryApiApplication.java
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       └── data.sql         # Testdata
+│   └── test/
+│       ├── java/nl/novi/boekenbeheer/
+│       │   ├── service/         # Unit- en integratietests
+│       │   └── LibraryApiApplicationTests.java
+│       └── resources/
+│           └── application.properties
+├── docs/
+│   └── uml/
+│       ├── class-diagram.puml
+│       ├── sequence-loan.puml
+│       └── sequence-return.puml
+├── pom.xml
+└── README.md
+```
+
+---
 
 ## GitHub
 
 De broncode van het project is beschikbaar via:
 
-https://github.com/I-Tosun/library-api
-```
-```
+**https://github.com/I-Tosun/library-api**

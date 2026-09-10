@@ -7,61 +7,61 @@ hide circle
 skinparam classAttributeIconSize 0
 
 class Author {
-    id : Long
-    firstName : String
-    lastName : String
+    id : identifier
+    firstName : text
+    lastName : text
 }
 
 class Book {
-    id : Long
-    isbn : String
-    title : String
-    publisher : String
-    publicationYear : Integer
-    category : String
-    description : String
-    coverImagePath : String
+    id : identifier
+    isbn : text
+    title : text
+    publisher : text
+    publicationYear : number
+    category : text
+    description : text
+    coverImagePath : text
 }
 
 Author "1" -- "*" Book : schrijft >
 
 class BookCopy {
-    id : Long
-    barcode : String
-    status : BookStatus
+    id : identifier
+    barcode : text
+    status : BookCopyStatus
 }
 
 Book "1" -- "*" BookCopy : heeft exemplaren >
 
-enum BookStatus {
+enum BookCopyStatus {
     AVAILABLE
     LOANED
 }
 
-BookCopy --> BookStatus : status
+BookCopy --> BookCopyStatus : status
 
 class Customer {
-  id : Long
-  keycloakId : String
-  firstName : String
-  lastName : String
-  email : String
-  phoneNumber : String
+    id : identifier
+    keycloakId : text
+    firstName : text
+    lastName : text
+    email : text
+    phoneNumber : text
 }
 
 class LibraryCard {
-  id : Long
-  cardNumber : String
-  issueDate : Date
-  expirationDate : Date
-  active : Boolean
+    id : identifier
+    cardNumber : text
+    issueDate : date
+    expirationDate : date
+    active : boolean
 }
 
 class Loan {
-  id : Long
-  loanDate : Date
-  dueDate : Date
-  returnDate : Date
+    id : identifier
+    loanDate : date
+    dueDate : date
+    returnDate : date
 }
 
 Customer "1" -- "1" LibraryCard : bezit >

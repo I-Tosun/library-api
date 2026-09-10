@@ -1,8 +1,7 @@
 @startuml
-
 title Sequentiediagram - Boek uitlenen
 
-actor Medewerker
+actor Beheerder
 participant "LoanController" as Controller
 participant "LoanService" as Service
 participant "BookCopyRepository" as BookCopyRepo
@@ -10,32 +9,32 @@ participant "CustomerRepository" as CustomerRepo
 participant "LoanRepository" as LoanRepo
 participant "LoanMapper" as Mapper
 
-Medewerker -> Controller : POST /api/loans\n(LoanRequest)
+Beheerder -> Controller : POST /api/loans\n(LoanRequest)
 activate Controller
 
 Controller -> Service : createLoan(LoanRequest request)
 activate Service
 
-Service -> BookCopyRepo : findById(bookCopyId)
+Service -> BookCopyRepo : findById(request.bookCopyId())
 activate BookCopyRepo
 BookCopyRepo --> Service : Optional<BookCopy>
 deactivate BookCopyRepo
 
 alt BookCopy niet gevonden
-    Service --> Controller : throw BookCopyNotFoundException
-    Controller --> Medewerker : 404 Not Found
+    Service --> Controller : throw RecordNotFoundException
+    Controller --> Beheerder : 404 Not Found
 else BookCopy status != AVAILABLE
-    Service --> Controller : throw BookCopyNotAvailableException
-    Controller --> Medewerker : 409 Conflict
+    Service --> Controller : throw BadRequestException
+    Controller --> Beheerder : 400 Bad Request
 else BookCopy beschikbaar
-    Service -> CustomerRepo : findById(customerId)
+    Service -> CustomerRepo : findById(request.customerId())
     activate CustomerRepo
     CustomerRepo --> Service : Optional<Customer>
     deactivate CustomerRepo
 
     alt Customer niet gevonden
-        Service --> Controller : throw CustomerNotFoundException
-        Controller --> Medewerker : 404 Not Found
+        Service --> Controller : throw RecordNotFoundException
+        Controller --> Beheerder : 404 Not Found
     else Customer gevonden
         Service -> Service : bookCopy.setStatus(LOANED)
         Service -> BookCopyRepo : save(bookCopy)
@@ -43,19 +42,23 @@ else BookCopy beschikbaar
         BookCopyRepo --> Service : BookCopy
         deactivate BookCopyRepo
 
-        Service -> Service : new Loan(customer, bookCopy, loanDate, dueDate)
+        Service -> Mapper : toEntity(request, customer, bookCopy)
+        activate Mapper
+        Mapper --> Service : Loan
+        deactivate Mapper
+
         Service -> LoanRepo : save(loan)
         activate LoanRepo
-        LoanRepo --> Service : Loan
+        LoanRepo --> Service : Loan saved
         deactivate LoanRepo
 
-        Service -> Mapper : toResponse(loan)
+        Service -> Mapper : toResponse(saved)
         activate Mapper
         Mapper --> Service : LoanResponse
         deactivate Mapper
 
         Service --> Controller : LoanResponse
-        Controller --> Medewerker : 201 Created\n(LoanResponse)
+        Controller --> Beheerder : 201 Created\n(LoanResponse)
     end
 end
 

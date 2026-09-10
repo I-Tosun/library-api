@@ -2,39 +2,35 @@
 
 title Sequentiediagram - Boek retourneren
 
-actor Medewerker
+actor Beheerder
 participant "LoanController" as Controller
 participant "LoanService" as Service
 participant "LoanRepository" as LoanRepo
 participant "BookCopyRepository" as BookCopyRepo
 participant "LoanMapper" as Mapper
 
-Medewerker -> Controller : PUT /api/loans/{id}/return
+Beheerder -> Controller : PUT /api/loans/{id}/return
 activate Controller
 
-Controller -> Service : returnLoan(loanId)
+Controller -> Service : returnLoan(id)
 activate Service
 
-Service -> LoanRepo : findById(loanId)
+Service -> LoanRepo : findById(id)
 activate LoanRepo
 LoanRepo --> Service : Optional<Loan>
 deactivate LoanRepo
 
 alt Loan niet gevonden
-    Service --> Controller : throw LoanNotFoundException
-    Controller --> Medewerker : 404 Not Found
+    Service --> Controller : throw RecordNotFoundException
+    Controller --> Beheerder : 404 Not Found
 else Loan al geretourneerd (returnDate != null)
-    Service --> Controller : throw LoanAlreadyReturnedException
-    Controller --> Medewerker : 409 Conflict
+    Service --> Controller : throw BadRequestException
+    Controller --> Beheerder : 400 Bad Request
 else Loan actief (returnDate == null)
-    Service -> Service : loan.setReturnDate(vandaag)
-
-    Service -> BookCopyRepo : findById(loan.getBookCopyId())
-    activate BookCopyRepo
-    BookCopyRepo --> Service : BookCopy
-    deactivate BookCopyRepo
-
+    Service -> Service : loan.setReturnDate(LocalDate.now())
+    Service -> Service : bookCopy = loan.getBookCopy()
     Service -> Service : bookCopy.setStatus(AVAILABLE)
+
     Service -> BookCopyRepo : save(bookCopy)
     activate BookCopyRepo
     BookCopyRepo --> Service : BookCopy
@@ -42,16 +38,16 @@ else Loan actief (returnDate == null)
 
     Service -> LoanRepo : save(loan)
     activate LoanRepo
-    LoanRepo --> Service : Loan
+    LoanRepo --> Service : Loan saved
     deactivate LoanRepo
 
-    Service -> Mapper : toResponse(loan)
+    Service -> Mapper : toResponse(saved)
     activate Mapper
     Mapper --> Service : LoanResponse
     deactivate Mapper
 
     Service --> Controller : LoanResponse
-    Controller --> Medewerker : 200 OK\n(LoanResponse)
+    Controller --> Beheerder : 200 OK\n(LoanResponse)
 end
 
 deactivate Service
