@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-/** Service voor het beheren van uitleningen. */
+// Service voor het beheren van uitleningen
 @Service
 public class LoanService {
 
