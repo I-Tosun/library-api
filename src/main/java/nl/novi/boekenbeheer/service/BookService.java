@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+/** Service voor het beheren van boeken en boekomslagen. */
 @Service
 public class BookService {
 
@@ -36,6 +37,7 @@ public class BookService {
         this.fileStorageUtil = fileStorageUtil;
     }
 
+    // Geeft alle boeken terug als lijst van BookResponse DTO's
     public List<BookResponse> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
@@ -43,6 +45,7 @@ public class BookService {
                 .toList();
     }
 
+    // Geeft één boek terug op basis van ID, gooit 404 als niet gevonden
     public BookResponse getBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() ->
@@ -52,6 +55,7 @@ public class BookService {
         return bookMapper.toResponse(book);
     }
 
+    // Geeft alle boeken terug van een specifieke categorie
     public List<BookResponse> getBooksByCategory(String category) {
         return bookRepository.findByCategory(category)
                 .stream()
@@ -59,35 +63,37 @@ public class BookService {
                 .toList();
     }
 
+    // Maakt een nieuw boek aan en controleert op dubbel ISBN en of de auteur bestaat.
     public BookResponse createBook(BookRequest request) {
         if (bookRepository.findByIsbn(request.isbn()).isPresent()) {
             throw new DuplicateRecordException(
                     "Boek met ISBN " + request.isbn() + " bestaat al");
         }
 
+        // Auteur ophalen, boek moet aan bestaande auteur gekoppeld zijn
         Author author = authorRepository.findById(request.authorId())
                 .orElseThrow(() ->
                         new RecordNotFoundException(
                                 "Auteur met id " + request.authorId() + " niet gevonden"));
 
         Book book = bookMapper.toEntity(request, author);
-
         Book saved = bookRepository.save(book);
-
         return bookMapper.toResponse(saved);
     }
-
+    // Werkt een bestaand boek bij, controleert of het boek en de auteur bestaan.
     public BookResponse updateBook(Long id, BookRequest request) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() ->
                         new RecordNotFoundException(
                                 "Boek met id " + id + " niet gevonden"));
 
+        // Auteur ophalen
         Author author = authorRepository.findById(request.authorId())
                 .orElseThrow(() ->
                         new RecordNotFoundException(
                                 "Auteur met id " + request.authorId() + " niet gevonden"));
 
+        // Velden bijwerken
         book.setIsbn(request.isbn());
         book.setTitle(request.title());
         book.setPublisher(request.publisher());
@@ -98,31 +104,30 @@ public class BookService {
         book.setAuthor(author);
 
         Book saved = bookRepository.save(book);
-
         return bookMapper.toResponse(saved);
     }
-
+    // Slaat een geüploade boekomslag op via FileStorageUtil en koppelt de bestandsnaam aan het boek
     public BookResponse uploadCover(Long id, MultipartFile bestand) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() ->
                         new RecordNotFoundException(
                                 "Boek met id " + id + " niet gevonden"));
 
+        // UUID-bestandsnaam wordt gegenereerd door FileStorageUtil
         String bestandsnaam = fileStorageUtil.slaBestandOp(bestand);
-
         book.setCoverImagePath(bestandsnaam);
 
         Book saved = bookRepository.save(book);
-
         return bookMapper.toResponse(saved);
     }
-
+    // Laadt de boekomslag op als Resource voor downloaden, gooit 404 als geen cover beschikbaar
     public Resource downloadCover(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() ->
                         new RecordNotFoundException(
                                 "Boek met id " + id + " niet gevonden"));
 
+        // Controleer of er een cover gekoppeld is aan het boek
         if (book.getCoverImagePath() == null ||
                 book.getCoverImagePath().isBlank()) {
 
@@ -132,13 +137,12 @@ public class BookService {
 
         return fileStorageUtil.laadBestand(book.getCoverImagePath());
     }
-
+    // Verwijdert een boek op basis van ID, gooit 404 als niet gevonden
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
             throw new RecordNotFoundException(
                     "Boek met id " + id + " niet gevonden");
         }
-
         bookRepository.deleteById(id);
     }
 }

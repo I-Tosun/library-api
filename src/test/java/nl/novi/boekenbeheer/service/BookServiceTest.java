@@ -91,7 +91,7 @@ class BookServiceTest {
         );
     }
 
-    // ===== getAllBooks =====
+    // getAllBooks
 
     @Test
     void getAllBooks_returnsAllBooks() {
@@ -107,7 +107,7 @@ class BookServiceTest {
         verify(bookRepository).findAll();
     }
 
-    // ===== getBookById =====
+    // getBookById
 
     @Test
     void getBookById_existingId_returnsBookResponse() {
@@ -133,7 +133,7 @@ class BookServiceTest {
                 () -> bookService.getBookById(99L));
     }
 
-    // ===== getBooksByCategory =====
+    // getBooksByCategory
 
     @Test
     void getBooksByCategory_returnsMatchingBooks() {
@@ -149,7 +149,7 @@ class BookServiceTest {
         verify(bookRepository).findByCategory("Fantasy");
     }
 
-    // ===== createBook =====
+    // createBook
 
     @Test
     void createBook_newIsbn_createsBook() {
@@ -193,7 +193,7 @@ class BookServiceTest {
         verify(bookRepository, never()).save(any());
     }
 
-    // ===== updateBook =====
+    // updateBook
 
     @Test
     void updateBook_existingBook_updatesAndReturns() {
@@ -236,7 +236,7 @@ class BookServiceTest {
         verify(bookRepository, never()).save(any());
     }
 
-    // ===== deleteBook =====
+    // deleteBook
 
     @Test
     void deleteBook_existingId_deletesBook() {
@@ -262,7 +262,7 @@ class BookServiceTest {
         verify(bookRepository, never()).deleteById(any());
     }
 
-    // ===== uploadCover =====
+    // uploadCover
 
     @Test
     void uploadCover_existingBook_savesFilePath() {
@@ -295,7 +295,7 @@ class BookServiceTest {
         verify(bookRepository, never()).save(any());
     }
 
-    // ===== downloadCover =====
+    // downloadCover
 
     @Test
     void downloadCover_existingCover_returnsResource() {

@@ -57,7 +57,7 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-    // ← NIEUW: cover uploaden
+    // cover uploaden
     @PostMapping("/{id}/cover")
     public ResponseEntity<BookResponse> uploadCover(@PathVariable Long id,
                                                     @RequestParam("bestand") MultipartFile bestand) {
@@ -65,7 +65,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    // ← NIEUW: cover downloaden
+    // cover downloaden
     @GetMapping("/{id}/cover")
     public ResponseEntity<Resource> downloadCover(@PathVariable Long id) {
         Resource resource = bookService.downloadCover(id);

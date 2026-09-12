@@ -87,7 +87,7 @@ class LoanServiceTest {
                 null, 1L, "Harry Potter", "BC-001", 1L, "Test Klant");
     }
 
-    // ===== getAllLoans =====
+    // getAllLoans
 
     @Test
     void getAllLoans_returnsAllLoans() {
@@ -103,7 +103,7 @@ class LoanServiceTest {
         verify(loanRepository).findAll();
     }
 
-    // ===== getLoansByCustomerId =====
+    // getLoansByCustomerId
 
     @Test
     void getLoansByCustomerId_returnsLoansForCustomer() {
@@ -119,7 +119,7 @@ class LoanServiceTest {
         verify(loanRepository).findByCustomerId(1L);
     }
 
-    // ===== getLoanById =====
+    // getLoanById
 
     @Test
     void getLoanById_existingId_returnsLoanResponse() {
@@ -145,7 +145,7 @@ class LoanServiceTest {
                 () -> loanService.getLoanById(99L));
     }
 
-    // ===== createLoan =====
+    // createLoan
 
     @Test
     void createLoan_availableCopyAndExistingCustomer_createsLoan() {
@@ -178,7 +178,7 @@ class LoanServiceTest {
         verify(loanRepository, never()).save(any());
     }
 
-    @Test // ← AANGEPAST: extra verify checks toegevoegd
+    @Test //  extra verify checks toegevoegd
     void createLoan_bookCopyNotAvailable_throwsBadRequestException() {
         // Arrange
         bookCopy.setStatus(BookCopyStatus.LOANED);
@@ -206,7 +206,7 @@ class LoanServiceTest {
         verify(loanRepository, never()).save(any());
     }
 
-    // ===== returnLoan =====
+    // returnLoan
 
     @Test
     void returnLoan_activeLoan_setsReturnDateAndAvailable() {
@@ -248,7 +248,7 @@ class LoanServiceTest {
         verify(loanRepository, never()).save(any());
     }
 
-    // ===== deleteLoan =====
+    // deleteLoan
 
     @Test
     void deleteLoan_existingId_deletesLoan() {
