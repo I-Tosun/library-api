@@ -145,9 +145,16 @@ De realm `boekenbeheer` wordt aangemaakt inclusief de geconfigureerde rollen, cl
 
 > **Let op:** De UUID's van de testgebruikers in Keycloak moeten overeenkomen met de waarden in `data.sql`. Bij gebruik van de meegeleverde `realm-export.json` worden de juiste UUID's automatisch aangemaakt.
 
-### Stap 5 — application.properties controleren
+### Stap 5 — application.properties aanmaken
 
-Controleer dat `src/main/resources/application.properties` de volgende waarden bevat:
+Maak een eigen `application.properties` aan op basis van het meegeleverde voorbeeldbestand:
+
+```bash
+cp src/main/resources/application.properties.example \
+   src/main/resources/application.properties
+```
+
+Pas daarna de waarden aan naar jouw lokale configuratie:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5434/boekenbeheerdb
@@ -306,7 +313,7 @@ library-api/
 │   │   │   ├── validation/      # Validatie
 │   │   │   └── LibraryApiApplication.java
 │   │   └── resources/
-│   │       ├── application.properties
+│   │       ├── application.properties.example # Kopieer naar application.properties
 │   │       └── data.sql         # Testdata
 │   └── test/
 │       ├── java/nl/novi/boekenbeheer/
