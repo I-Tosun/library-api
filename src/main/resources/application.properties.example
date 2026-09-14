@@ -1,12 +1,32 @@
-spring.application.name=library-api
+# Applicatie
+spring.application.name=boekenbeheer
 
-# Database
-spring.datasource.url=jdbc:postgresql://localhost:5433/librarydb
+# Database — pas aan naar jouw lokale PostgreSQL configuratie
+spring.datasource.url=jdbc:postgresql://localhost:5434/boekenbeheerdb
 spring.datasource.username=postgres
 spring.datasource.password=your_password_here
 
-# JPA / Hibernate
+# JPA
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.open-in-view=false
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+
+# Data initialisatie
+spring.sql.init.mode=always
+
+# Bestandsopslag
+app.upload.dir=uploads
+
+# Bestandsupload limiet
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# Swagger
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.api-docs.path=/api-docs
+
+# Keycloak / Security
+spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/boekenbeheer
+spring.security.oauth2.resourceserver.jwt.audiences=account
