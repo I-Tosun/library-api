@@ -159,7 +159,7 @@ Pas daarna de waarden aan naar jouw lokale configuratie:
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5434/boekenbeheerdb
 spring.datasource.username=postgres
-spring.datasource.password=1234
+spring.datasource.password=your_password_here
 spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/boekenbeheer
 spring.security.oauth2.resourceserver.jwt.audiences=account
 ```
