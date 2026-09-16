@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/customers/**").hasRole("BEHEERDER")
                         .requestMatchers("/api/library-cards/**").hasRole("BEHEERDER")
 
+//                       //klant mag alleen eigen leningen zien via /customer/{id}
+                        .requestMatchers(HttpMethod.GET, "/api/loans/customer/**").hasAnyRole("BEHEERDER", "KLANT")
                         // Leningen: lezen en aanmaken voor beide rollen, retourneren/verwijderen alleen BEHEERDER
                         .requestMatchers(HttpMethod.GET, "/api/loans/**").hasAnyRole("BEHEERDER", "KLANT")
                         .requestMatchers(HttpMethod.POST, "/api/loans/**").hasAnyRole("BEHEERDER", "KLANT")

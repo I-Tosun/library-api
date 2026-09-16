@@ -19,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -68,6 +71,7 @@ class LoanServiceTest {
         customer.setId(1L);
         customer.setFirstName("Test");
         customer.setLastName("Klant");
+        customer.setKeycloakId("test-keycloak-id"); // ← NIEUW: keycloakId voor eigenaarschapscontrole
 
         loan = new Loan();
         loan.setId(1L);
@@ -87,7 +91,7 @@ class LoanServiceTest {
                 null, 1L, "Harry Potter", "BC-001", 1L, "Test Klant");
     }
 
-    // getAllLoans
+    //getAllLoans
 
     @Test
     void getAllLoans_returnsAllLoans() {
@@ -103,20 +107,58 @@ class LoanServiceTest {
         verify(loanRepository).findAll();
     }
 
-    // getLoansByCustomerId
+    //getLoansByCustomerId
 
-    @Test
+    @Test // ← GEWIJZIGD: Authentication toegevoegd als BEHEERDER
     void getLoansByCustomerId_returnsLoansForCustomer() {
         // Arrange
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getAuthorities()).thenAnswer(inv ->
+                List.of(new SimpleGrantedAuthority("ROLE_BEHEERDER")));
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
         when(loanRepository.findByCustomerId(1L)).thenReturn(List.of(loan));
         when(loanMapper.toResponse(loan)).thenReturn(loanResponse);
 
         // Act
-        List<LoanResponse> result = loanService.getLoansByCustomerId(1L);
+        List<LoanResponse> result = loanService.getLoansByCustomerId(1L, authentication);
 
         // Assert
         assertEquals(1, result.size());
         verify(loanRepository).findByCustomerId(1L);
+    }
+
+    @Test //klant vraagt eigen leningen op
+    void getLoansByCustomerId_klantVraagEigenLeningen_returnsLoans() {
+        //Arrange
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getAuthorities()).thenAnswer(inv ->
+                List.of(new SimpleGrantedAuthority("ROLE_KLANT")));
+        when(authentication.getName()).thenReturn("test-keycloak-id");
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+        when(loanRepository.findByCustomerId(1L)).thenReturn(List.of(loan));
+        when(loanMapper.toResponse(loan)).thenReturn(loanResponse);
+
+        // Act
+        List<LoanResponse> result = loanService.getLoansByCustomerId(1L, authentication);
+
+        // Assert
+        assertEquals(1, result.size());
+    }
+
+    @Test // klant vraagt leningen van andere klant op → 403
+    void getLoansByCustomerId_klantVraagAnderemansLeningen_throwsAccessDeniedException() {
+        // Arrange
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getAuthorities()).thenAnswer(inv ->
+                List.of(new SimpleGrantedAuthority("ROLE_KLANT")));
+        when(authentication.getName()).thenReturn("ander-keycloak-id");
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+
+        // Act & Assert
+        assertThrows(AccessDeniedException.class,
+                () -> loanService.getLoansByCustomerId(1L, authentication));
+
+        verify(loanRepository, never()).findByCustomerId(any());
     }
 
     // getLoanById
@@ -178,7 +220,7 @@ class LoanServiceTest {
         verify(loanRepository, never()).save(any());
     }
 
-    @Test //  extra verify checks toegevoegd
+    @Test
     void createLoan_bookCopyNotAvailable_throwsBadRequestException() {
         // Arrange
         bookCopy.setStatus(BookCopyStatus.LOANED);

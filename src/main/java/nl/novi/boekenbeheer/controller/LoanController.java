@@ -1,13 +1,14 @@
 package nl.novi.boekenbeheer.controller;
 
-import jakarta.validation.Valid;
 import nl.novi.boekenbeheer.dto.request.LoanRequest;
 import nl.novi.boekenbeheer.dto.response.LoanResponse;
 import nl.novi.boekenbeheer.service.LoanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -30,13 +31,18 @@ public class LoanController {
         return ResponseEntity.ok(loanService.getLoanById(id));
     }
 
+    // Authentication toegevoegd voor eigenaarschapscontrole
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<LoanResponse>> getLoansByCustomerId(@PathVariable Long customerId) {
-        return ResponseEntity.ok(loanService.getLoansByCustomerId(customerId));
+    public ResponseEntity<List<LoanResponse>> getLoansByCustomerId(
+            @PathVariable Long customerId,
+            Authentication authentication) {
+        return ResponseEntity.ok(
+                loanService.getLoansByCustomerId(customerId, authentication));
     }
 
     @PostMapping
-    public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody LoanRequest request) {
+    public ResponseEntity<LoanResponse> createLoan(
+            @Valid @RequestBody LoanRequest request) {
         LoanResponse response = loanService.createLoan(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
