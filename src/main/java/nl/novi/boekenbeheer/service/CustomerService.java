@@ -3,10 +3,12 @@ package nl.novi.boekenbeheer.service;
 import nl.novi.boekenbeheer.dto.request.CustomerRequest;
 import nl.novi.boekenbeheer.dto.response.CustomerResponse;
 import nl.novi.boekenbeheer.entity.Customer;
+import nl.novi.boekenbeheer.exception.BadRequestException; // ← NIEUW
 import nl.novi.boekenbeheer.exception.DuplicateRecordException;
 import nl.novi.boekenbeheer.exception.RecordNotFoundException;
 import nl.novi.boekenbeheer.mapper.CustomerMapper;
 import nl.novi.boekenbeheer.repository.CustomerRepository;
+import nl.novi.boekenbeheer.repository.LoanRepository; // ← NIEUW
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +18,15 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final LoanRepository loanRepository; // ← NIEUW
 
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+    // LoanRepository toegevoegd aan constructor
+    public CustomerService(CustomerRepository customerRepository,
+                           CustomerMapper customerMapper,
+                           LoanRepository loanRepository) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
+        this.loanRepository = loanRepository; // ← NIEUW
     }
 
     public List<CustomerResponse> getAllCustomers() {
@@ -31,13 +38,15 @@ public class CustomerService {
 
     public CustomerResponse getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RecordNotFoundException("Klant met id " + id + " niet gevonden"));
+                .orElseThrow(() -> new RecordNotFoundException(
+                        "Klant met id " + id + " niet gevonden"));
         return customerMapper.toResponse(customer);
     }
 
     public CustomerResponse createCustomer(CustomerRequest request) {
         if (customerRepository.findByEmail(request.email()).isPresent()) {
-            throw new DuplicateRecordException("Klant met email " + request.email() + " bestaat al");
+            throw new DuplicateRecordException(
+                    "Klant met email " + request.email() + " bestaat al");
         }
         Customer customer = customerMapper.toEntity(request);
         Customer saved = customerRepository.save(customer);
@@ -46,10 +55,12 @@ public class CustomerService {
 
     public CustomerResponse updateCustomer(Long id, CustomerRequest request) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RecordNotFoundException("Klant met id " + id + " niet gevonden"));
+                .orElseThrow(() -> new RecordNotFoundException(
+                        "Klant met id " + id + " niet gevonden"));
         if (!customer.getEmail().equals(request.email()) &&
                 customerRepository.findByEmail(request.email()).isPresent()) {
-            throw new DuplicateRecordException("Klant met email " + request.email() + " bestaat al");
+            throw new DuplicateRecordException(
+                    "Klant met email " + request.email() + " bestaat al");
         }
         customer.setFirstName(request.firstName());
         customer.setLastName(request.lastName());
@@ -59,10 +70,25 @@ public class CustomerService {
         return customerMapper.toResponse(saved);
     }
 
+    // controle op actieve leningen toegevoegd (FE-12)
     public void deleteCustomer(Long id) {
         if (!customerRepository.existsById(id)) {
-            throw new RecordNotFoundException("Klant met id " + id + " niet gevonden");
+            throw new RecordNotFoundException(
+                    "Klant met id " + id + " niet gevonden");
         }
+
+        // klant mag niet worden verwijderd met actieve leningen
+        boolean heeftActieveLeningen = loanRepository
+                .findByCustomerId(id)
+                .stream()
+                .anyMatch(loan -> loan.getReturnDate() == null);
+
+        if (heeftActieveLeningen) {
+            throw new BadRequestException(
+                    "Klant met id " + id +
+                            " kan niet worden verwijderd omdat er nog actieve leningen zijn");
+        }
+
         customerRepository.deleteById(id);
     }
 }
