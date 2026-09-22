@@ -197,13 +197,13 @@ Voer alle tests uit met:
 De huidige testset bestaat uit:
 
 | Testklasse | Aantal tests | Type |
-|---|---|---|
-| `LoanServiceTest` | 13 | Unit test |
-| `BookServiceTest` | 17 | Unit test |
-| `AuthorControllerIntegrationTest` | 4 | Integratietest |
-| `BookControllerIntegrationTest` | 5 | Integratietest |
-| `LibraryApiApplicationTests` | 1 | Context test |
-| **Totaal** | **40** | |
+|---|--------------|---|
+| `LoanServiceTest` | 15           | Unit test |
+| `BookServiceTest` | 17           | Unit test |
+| `AuthorControllerIntegrationTest` | 4            | Integratietest |
+| `BookControllerIntegrationTest` | 5            | Integratietest |
+| `LibraryApiApplicationTests` | 1            | Context test |
+| **Totaal** | **42**       | |
 
 - 0 failures
 - `LoanService`: 100% line coverage
@@ -241,7 +241,7 @@ http://localhost:8080/api-docs
 
 De API kan worden getest met de meegeleverde Postman-collectie.
 
-Importeer het bestand `Boekenbeheer-API.postman_collection.json` in Postman.
+Importeer het bestand `Postman collectie.json` in Postman.
 
 ### Postman environment
 
